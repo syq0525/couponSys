@@ -1,0 +1,47 @@
+<template>
+  <div>
+    <el-tabs v-model="activeName" type="card" @tab-click="handleClick" >
+      <el-tab-pane label="核销券" name="first">
+        <verifypage></verifypage>
+      </el-tab-pane>
+      <el-tab-pane label="核销记录" name="second" >
+        <verifylist></verifylist>
+      </el-tab-pane>
+    </el-tabs>
+  </div>
+</template>
+<script>
+  import verifypage from './Verifypage.vue'
+  import verifylist from './Verifylist.vue'
+  export default {
+    data(){
+      return{
+        activeName: 'first',
+      }
+    },
+    components:{
+      verifypage,
+      verifylist,
+    },
+    mounted(){
+      
+    },
+    methods: { 
+      async getData(){
+        this.listLoading=true
+        let d={
+            functionStr:'verify'
+        };
+        let res = await this.$get('/couponSys/mgrFunction/getFunction.json',d);
+
+      },
+      
+      handleClick(tab, event) {
+          // this.$router.replace({path:'/home/coupon/couponbox',query:{type:this.activeName}})
+      }
+    }
+  }
+</script>
+<style lang="scss">
+
+</style>

@@ -1,0 +1,393 @@
+<template>
+    <section>
+        <el-row class="breadcrumb">券方案/{{id==null?'创建':'编辑'}}优惠券方案</el-row>
+        <div class="create-info">
+            <span>券方案编码：{{code}}</span>
+            <span class="fr">创建人：{{username}} | 创建时间：{{$format(createTime)}}</span>
+        </div>
+        <el-card v-loading="loading">
+            
+            <el-row >
+                <el-col class="module-title" >基本设置</el-col>
+            </el-row>
+            <el-row >
+                <el-col :span="24">
+                    <span class="search-span">劵方案名称：</span>
+                    <el-input v-model="name" style="width:40%" placeholder="优惠券名称不可以超过25个字符" ></el-input>
+                </el-col>
+            </el-row>
+            <el-row >
+                <el-col >
+                    <span class="search-span">优惠券类型：</span>
+                    <el-button :type="thresholdType==1?'primary':''" @click="thresholdType=1">满减券</el-button>
+                    <el-button :type="thresholdType==2?'primary':''" @click="thresholdType=2">无门槛代金券</el-button>
+                </el-col>
+                
+            </el-row>
+            
+            <el-row >
+                <el-col  v-if="thresholdType==1">
+                    <span class="search-span">优惠券面值：</span>
+                    <span>订单满</span><el-input style="width:80px;margin:0 10px" v-model="thresholdAmt" ></el-input><span>减</span><el-input style="width:80px;margin:0 10px" v-model="couponAmt" ></el-input><span>元</span>
+                </el-col>
+                <el-col  v-if="thresholdType==2">
+                    <span class="search-span">优惠券面值：</span>
+                    <el-input style="width:80px;margin-right:10px"  v-model="couponAmt"></el-input><span>元</span>
+                </el-col>
+                
+            </el-row>
+            <el-row >
+                <el-col :md="8">
+                    <span class="search-span">总发行量：</span>
+                    <el-input style="width:80px" v-model="issuanceQty"></el-input>
+                    <span>张</span>
+                </el-col>
+            </el-row>
+            <el-row >
+                <el-col >
+                    <span class="search-span">优惠券有效期：</span>
+                    <el-select v-model="validityType" placeholder="请选择">
+                        <el-option label="截止日期至" :value="1"></el-option>
+                        <el-option label="自定义时间段" :value="2"></el-option>
+                        <el-option label="领取后" :value="3"></el-option>
+                    </el-select>
+                    <template v-if="validityType==1">
+                        <el-date-picker
+                            v-model="deadTime"
+                            :editable="false"
+                            type="datetime"
+                            placeholder="截止时间">
+                        </el-date-picker>
+                    </template>
+                    <template v-if="validityType==2">
+                        <el-date-picker
+                            v-model="startTime"
+                            :editable="false"
+                            type="datetime"
+                            placeholder="开始时间">
+                        </el-date-picker>
+                        <span>至</span>
+                        <el-date-picker
+                            v-model="endTime"
+                            :editable="false"
+                            type="datetime"
+                            placeholder="结束时间">
+                        </el-date-picker>
+                    </template>
+                    <template v-if="validityType==3">
+                        <span>至领券之日起</span><el-input style="width:80px;margin:0 10px" v-model="validityDay" ></el-input><span>天</span>
+                    </template>
+                </el-col>
+            </el-row>
+            
+            <el-row >
+                <el-col >
+                    <span class="search-span">使用须知：</span>
+                    <el-input type="textarea" :rows="4" placeholder="请详细描述该优惠券使用的说明内容，不超过500个字符" style="width:50%" v-model="notice"></el-input>
+                </el-col>
+            </el-row>
+            <el-row >
+                <el-col class="module-title" >推广设置</el-col>
+            </el-row>
+            <el-row >
+                <el-col >
+                    <span class="search-span">可领取时间：</span>
+                    <el-date-picker
+                        v-model="availableStartTime"
+                        :editable="false"
+                        type="datetime"
+                        
+                        placeholder="开始时间">
+                    </el-date-picker>
+                    <span>至</span>
+                    <el-date-picker
+                        v-model="availableEndTime"
+                        :editable="false"
+                        type="datetime"
+                        placeholder="结束时间">
+                    </el-date-picker>
+                </el-col>
+            </el-row>
+            <el-row >
+                <el-col >
+                    <span class="search-span">限领设置：</span>
+                    <el-select v-model="limitType" placeholder="请选择">
+                        <el-option label="每人限领" :value="1"></el-option>
+                        <el-option label="活动期间每人限领" :value="2"></el-option>
+                        <el-option label="活动期间每人每日限领" :value="3"></el-option>
+                    </el-select>
+                    <el-input style="width:80px;margin:0 10px" v-model="limitQty"></el-input><span>张</span>
+                </el-col>
+            </el-row>
+            <el-row >
+                <el-col >
+                    <span class="search-span">会员等级：</span>
+                    <el-select v-model="mbeGrade" multiple placeholder="选择会员等级">
+                        <el-option label="普卡" value="251"></el-option>
+                        <el-option label="银卡" value="252"></el-option>
+                        <el-option label="金卡" value="253"></el-option>
+                        <el-option label="钻石卡" value="254"></el-option>
+                    </el-select>
+                </el-col>
+            </el-row>
+            <el-row >
+                <el-col :lg="15">
+                    <span class="search-span fl" style="width:140px">适用商品/服务：</span>
+                    <el-tree 
+                        :data="category" 
+                        :props="defaultProps"  
+                        ref="tree"   
+                        show-checkbox 
+                        node-key="id" 
+                        :accordion="true" 
+                        style="margin-left:145px">
+                    </el-tree>
+                </el-col>
+            </el-row>
+            <el-row >
+                <el-col >
+                    <span class="search-span" ></span>
+                    <el-checkbox v-model="isPublic">领券中心页面显示该券方案</el-checkbox>
+                </el-col>
+            </el-row>
+            <el-row >
+                <el-col >
+                    <span class="search-span" ></span>
+                    <el-checkbox v-model="isShared">领券链接可被分享</el-checkbox>
+                </el-col>
+            </el-row>
+            <el-row class="btn-group" >
+                <el-button type="primary" size="large" @click="saveInfo">保存</el-button>
+                <el-button type="primary" size="large" @click="goBack">返回</el-button> 
+            </el-row>
+        </el-card>
+    </section>
+</template>
+<script>
+    export default {
+        name:'addcoupon',
+        data(){
+            return{
+                id:this.$route.query.id||null,
+                code:'',  //劵方案编码
+                createTime:'',  //创建时间
+                username:'',
+                creater:'',  //创建人账号
+                name:'',   //优惠券名称
+                type:1,  //劵类型  1.优惠券  10.乐橙劵   20.外平台劵
+                couponAmt:'',  //优惠券面值
+                thresholdType:1, //1.有门槛  2.无门槛
+                thresholdAmt:'',  //满减金额(有门槛)
+                issuanceQty:'', //发行劵总数量
+                remainQty:'',  //发行劵剩余数量
+                validityType:1,  //1.绝对时间  2.相对时间
+                validityDay:'',   //相对时间  多少天
+                deadTime:'',  //截止之间
+                startTime:'',  //绝对时间有效期开始时间
+                endTime:'',  //绝对时间有效期结束时间
+                notice:'',  //须知
+                availableStartTime:'',  //可领取开始时间
+                availableEndTime:'',  //可领取结束时间
+                mbeGrade:'',  //会员等级
+                limitType:1,  //限额设置 1.没人限额 2.期间每人限额  3.期间每人每天限额
+                limitQty:'',  //限额数量
+                isPublic:false,  //领劵中心是否可见  1.是  2.否
+                isShared:false,  //是否分享  1.是  2.否
+                vstatus:1,
+                defaultProps:{
+                    children: 'children',  
+                    label: 'name',
+                },
+                category: [],  //初始化商城
+                loading:false
+            }
+            
+        },
+
+        mounted(){
+            if(this.id==null){
+                this.getCode()
+            }else{
+                this.initInfo()
+            }
+        },
+        methods:{
+            
+            async initInfo(){
+                let d={
+                    id:this.id
+                }
+                let res = await this.$get('/couponSys/couponSchemeOnline/toUpdate.json',d);
+                this.code=res.entity.code
+                this.name=res.entity.name
+                this.username=res.entity.createrName
+                this.creater=res.entity.creater
+                this.createTime=res.entity.createTime
+                this.thresholdType=res.entity.thresholdType
+                this.couponAmt=res.entity.couponAmt
+                this.thresholdAmt=res.entity.thresholdAmt
+                this.issuanceQty=res.entity.issuanceQty
+                this.validityType=res.entity.validityType
+                this.validityDay=res.entity.validityDay
+                this.deadTime=this.$format(res.entity.deadTime)
+                this.startTime=this.$format(res.entity.startTime)
+                this.endTime=this.$format(res.entity.endTime)
+                this.notice=res.entity.notice
+                this.availableStartTime=this.$format(res.entity.availableStartTime)
+                this.availableEndTime=this.$format(res.entity.availableEndTime)
+                this.mbeGrade=res.entity.mbeGrade.split(',')
+                this.limitType=res.entity.limitType
+                this.limitQty=res.entity.limitQty
+                this.isPublic=res.entity.isPublic==1?true:false
+                this.isShared=res.entity.isShared==1?true:false
+                this.vstatus=res.entity.vstatus
+                this.category=res.category.list
+
+                let list=res.category.list
+                let arr=[];
+                for(let i=0;i<list.length;i++){
+                    if(list[i].select==1){
+                        arr.push(list[i])
+
+                    }else if(list[i].children){
+
+                        for(let j=0;j<list[i].children.length;j++){
+
+                            if(list[i].children[j].select==1){
+                                arr.push(list[i].children[j])
+
+                            }else if(list[i].children[j].children){
+
+                                for(let m=0;m<list[i].children[j].children.length;m++){
+
+                                    if(list[i].children[j].children[m].select==1){
+                                         arr.push(list[i].children[j].children[m])
+
+                                    }else if(list[i].children[j].children[m].children){
+
+                                        for(let n=0;n<list[i].children[j].children[m].children.length;n++){
+
+                                            if(list[i].children[j].children[m].children[n].select==1){
+                                                arr.push(list[i].children[j].children[m].children[n])
+                                            }
+
+                                        }
+
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+
+                }
+                this.$nextTick(()=>{
+                    this.$refs.tree.setCheckedNodes(arr);
+                })
+                
+
+            },
+            async getCode(){
+                
+                let res = await this.$get('/couponSys/couponSchemeOnline/create.json');
+                this.category=res.category.list
+                this.code=res.entity.code
+                this.createTime=this.$format(res.entity.createTime)
+                let userinfo = unescape(sessionStorage.getItem('userinfo'));
+                if (userinfo) {
+                    userinfo = JSON.parse(userinfo);
+                    this.creater=userinfo.id;
+                    this.username=userinfo.name
+                }
+
+            },
+            async saveInfo(){
+                let nodes=this.$refs.tree.getCheckedNodes();
+                let categoryList=[];
+                for(let i=0;i<nodes.length;i++){
+                    let item={
+                        fkCouponSchemeId:this.id,
+                        goodId:nodes[i].cat_id ? nodes[i].id:'',
+                        source:1,
+                        isGood:nodes[i].cat_id ? 1:0,
+                        categoryId:nodes[i].cat_id ? nodes[i].cat_id:nodes[i].id
+                    }
+                    categoryList.push(item)
+                }
+ 
+                let d={
+                    content:{ 
+                        bCouponSchemeOnline:{
+                            id:this.id,
+                            code:this.code,
+                            createTime:this.$format(this.createTime),
+                            creater:this.creater,
+                            name:this.name,
+                            type:this.type,
+                            couponAmt:this.couponAmt,
+                            thresholdType:this.thresholdType,
+                            thresholdAmt:this.thresholdAmt,
+                            issuanceQty:this.issuanceQty,
+                            remainQty:this.remainQty,
+                            validityType:this.validityType,
+                            validityDay:this.validityDay,
+                            deadTime:this.$format(this.deadTime),
+                            startTime:this.$format(this.startTime),
+                            endTime:this.$format(this.endTime),
+                            notice:this.notice,
+                            availableStartTime:this.$format(this.availableStartTime),
+                            availableEndTime:this.$format(this.availableEndTime),
+                            mbeGrade:this.mbeGrade.join(','),
+                            limitType:this.limitType,
+                            limitQty:this.limitQty,
+                            isPublic:this.isPublic?1:2,
+                            isShared:this.isShared?1:2,
+                            vstatus:this.vstatus,
+                        },
+                        bCouponSchemeCategoryList:categoryList
+                    }
+                }
+                this.loading=true
+                let res;
+                if(this.id==null){
+                    res = await this.$post('/couponSys/couponSchemeOnline/add.json',d);
+                }else{
+                    res = await this.$post('/couponSys/couponSchemeOnline/update.json',d);
+                }
+                this.loading=false
+                if(res.errcode==0){
+                    this.$message.success(this.id==null?'添加成功':'修改成功');
+                    eventBus.$emit('resetCouponlist')
+                    this.$router.go(-1)
+                }else{
+                    this.$message.error(res.msg);
+                }
+            },
+            goBack(){
+                this.$router.go(-1)
+            },
+        }
+    }
+</script>
+<style lang="scss" scoped>
+    .search-span{
+        display: inline-block;
+        width: 140px;
+        text-align: right;
+    }
+    
+
+    .el-col{
+        margin-bottom: 20px
+    }
+    .notes{
+        margin-left: 30px;
+    }
+    .el-textarea{
+        vertical-align: top;
+    }
+    .btn-group{
+        margin-top:40px;
+        text-align:center
+    }
+</style>

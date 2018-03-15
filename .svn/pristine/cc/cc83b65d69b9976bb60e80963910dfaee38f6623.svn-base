@@ -1,0 +1,24 @@
+<template>
+  <div class="test">
+      测试站
+  </div>
+</template>
+
+<script>
+    import Rem from '../../utils/rem.js'
+    export default {
+    
+    }
+</script>
+<style lang="scss">
+    .test{
+        width: 100%;
+        background: #000;
+        height: .4rem;
+        font-size: .16rem;
+        color: #fff
+    }
+</style>
+
+
+

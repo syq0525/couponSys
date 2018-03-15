@@ -1,0 +1,19 @@
+'use strict'
+
+const install = function (Vue) {
+    //时间格式化
+    Vue.$format = Vue.prototype.$format = function (date){
+        if(!date){
+            return ''
+        }
+        let d=new Date(date);
+        let month=(d.getMonth() + 1).toString().length<2 ? '0'+(d.getMonth() + 1):(d.getMonth() + 1);
+        let day=d.getDate().toString().length<2 ? '0'+d.getDate():d.getDate();
+        let hour=d.getHours().toString().length<2 ? '0'+d.getHours():d.getHours();
+        let minutes=d.getMinutes().toString().length<2 ? '0'+d.getMinutes():d.getMinutes();
+        let seconds=d.getSeconds().toString().length<2 ? '0'+d.getSeconds():d.getSeconds();
+        let time=d.getFullYear() + '-' + month + '-' + day + ' ' + hour + ':' + minutes + ':' + seconds;
+        return time
+    }
+}
+export default install

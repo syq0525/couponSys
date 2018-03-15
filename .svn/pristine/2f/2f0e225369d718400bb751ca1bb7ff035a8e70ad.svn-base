@@ -1,0 +1,117 @@
+'use strict'
+
+import axios from 'axios'
+
+const install = function (Vue) {
+    console.log(process.env.NODE_ENV)
+    if(process.env.NODE_ENV==='development'){
+        window.host='http://192.168.21.215:8080';
+    }else{
+        window.host='http://192.168.11.81:9090';
+    }
+    
+    // window.host='http://192.168.21.108:8080';
+    axios.interceptors.request.use(config => {
+        return config
+    }, error => {
+        return Promise.reject(error)
+    })
+
+    axios.interceptors.response.use(response => {
+        return response
+    }, error => {
+        return Promise.resolve(error.response)
+    })
+
+    function checkStatus(response) {
+        // 如果http状态码正常，则直接返回数据
+        if (response && (response.status === 200 || response.status === 304 || response.status === 400)) {
+            return response.data
+        }
+        if(response && response.status===401 && response.headers.sessionstatus=='timeout'){
+            Vue.$router.push('/login')
+            // eventBus.$alert('登录信息失效，请重新登录', '提示', {
+            //     confirmButtonText: '确定',
+            //     callback: action => {
+            //         Vue.$router.push('/login')
+            //     }
+            // });
+        }
+        // 异常状态下，把错误信息返回去
+        return {
+            status: -404,
+            msg: '网络异常'
+        }
+
+    }
+    function checkCode(res) {
+        // 如果code异常(这里已经包括网络错误，服务器错误，后端抛出的错误)，可以弹出一个错误提示，告诉用户 
+        eventBus.$message.error(res.msg);
+        return res
+    }
+    Vue.$post = Vue.prototype.$post = function (url, data) {
+        url=host+url;
+        return  new Promise((resolve,reject)=>{
+            axios({
+                method: 'post',
+                url,
+                data: JSON.stringify(data),
+                timeout: 20000,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json;charset=UTF-8'
+                }
+            }).then(
+                (response) => {
+                    resolve(checkStatus(response))
+                }).catch(
+                (res) => {
+                    reject(checkCode())
+                })
+        })       
+        
+    }
+
+    Vue.$get = Vue.prototype.$get = function (url, params) {
+        url=host+url;
+        return  new Promise((resolve,reject)=>{
+            axios({
+                method: 'get',
+                url,
+                params, // get 请求时带的参数
+                timeout: 20000,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(
+                (response) => {
+                    resolve(checkStatus(response))
+                }).catch(
+                (res) => {
+                    reject(checkCode())
+                })
+        })
+    }
+
+    Vue.$delete = Vue.prototype.$delete = function (url, params) {
+        url=host+url;
+        return  new Promise((resolve,reject)=>{
+            axios({
+                method: 'delete',
+                url,
+                params, // get 请求时带的参数
+                timeout: 10000,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(
+                (response) => {
+                    resolve(checkStatus(response))
+                }).catch(
+                (res) => {
+                    reject(checkCode())
+                }) 
+        })
+    }
+}
+export default install
