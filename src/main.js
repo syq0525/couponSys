@@ -29,7 +29,7 @@ router.beforeEach((to, from, next) => {
     sessionStorage.removeItem('user');
   }
   let user = JSON.parse(unescape(sessionStorage.getItem('user')));
-  if (!user && to.path != '/login' && to.path != '/mobile') {
+  if (!user && to.path != '/login') {
     next({ path: '/login' })
   } else {
     next()
