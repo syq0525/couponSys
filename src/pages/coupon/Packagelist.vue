@@ -3,21 +3,21 @@
     <!--工具条-->
     <el-col :span="24" class="toolbar">
       <el-row >
-        <el-col class="search-box" v-if="couponadd">
-          <el-button class="el-icon-plus button-primary-hover" @click="handleAdd"  > 新增优惠券方案</el-button>
+        <el-col class="search-box" v-if="packageadd">
+          <el-button class="el-icon-plus button-primary-hover" @click="handleAdd"  > 新增券包方案</el-button>
         </el-col>
         <el-col class="search-item">
           <div class="search-box">
-            <span class="search-title">劵方案编号</span>
+            <span class="search-title">券包编号</span>
             <el-input v-model="search.code" placeholder="请输入劵方案编号" style="width:200px" :clearable="true"></el-input>
           </div>
           <div class="search-box">
-            <span class="search-title">劵方案名称</span>
+            <span class="search-title">券包名称</span>
             <el-input v-model="search.name" placeholder="请输入劵方案名称" style="width:200px" :clearable="true"></el-input>
           </div>
           <div class="search-box">
             <span class="search-title">创建时间</span>
-              <el-date-picker
+            <el-date-picker
                 :editable="false"
                 v-model="search.time"
                 type="daterange"
@@ -29,7 +29,7 @@
         </el-col> 
         <el-col class="search-item">
           <div class="search-box">
-            <span class="search-span">劵方案状态：</span>
+            <span class="search-span">券包状态：</span>
             <el-radio v-model="search.vstatus" label="">全部</el-radio>
             <el-radio v-model="search.vstatus" label="1">已启用</el-radio>
             <el-radio v-model="search.vstatus" label="2">已停用</el-radio>
@@ -40,74 +40,56 @@
             <el-button  type="primary" @click="searchItem" class="el-icon-search" > 搜索</el-button>
           </div>
         </el-col>
+          
       </el-row>
-
+      
     </el-col>
       <!--列表-->
     <el-table :data="listItems" stripe   highlight-current-row v-loading="listLoading"  ref="table">
       <!-- <el-table-column type="selection" ></el-table-column> -->
-      <el-table-column  label="券方案编码"  >
+      <el-table-column  label="券包编码"  >
         <template scope="scope">
           <span class="see-details" @click="modifyItem(scope.row.id,-1)">{{scope.row.code}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="name" label="券方案名称"  ></el-table-column>
-      <el-table-column label="券类型" >
-        <template scope="scope">
-          优惠券
-        </template>
-      </el-table-column>
-      <el-table-column prop="couponAmt" label="价值" width="80"></el-table-column>
-      <el-table-column prop="issuanceQty" label="创建数量" width="80"></el-table-column>
-      <el-table-column prop="code" label="领取数量" width="80">
+      <el-table-column prop="name" label="券包名称"  ></el-table-column>
+    
+      <el-table-column prop="issuanceQty" label="创建数量" ></el-table-column>
+      <el-table-column prop="code" label="领取数量" >
         <template scope="scope">
           {{scope.row.issuanceQty-scope.row.remainQty}}
         </template>
       </el-table-column>
-      <el-table-column  label="有效期" >
-        <template scope="scope" >
-          <template v-if="scope.row.validityType==1">
-            截止日期至{{$format(scope.row.deadTime)}}
-          </template>
-          <template v-if="scope.row.validityType==2">
-            {{$format(scope.row.startTime)}}至{{$format(scope.row.endTime)}}
-          </template>
-          <template v-if="scope.row.validityType==3">
-            领取后{{scope.row.validityDay}}天内有效
-          </template>
-        </template>
-      </el-table-column>
+      
       <el-table-column  label="创建日期" >
         <template scope="scope">
             {{$format(scope.row.createTime)}}
         </template>
       </el-table-column>
       <el-table-column prop="createrName" label="创建人" ></el-table-column>
-      <el-table-column prop="code" label="券方案状态" >
+      <el-table-column prop="code" label="券包状态" >
         <template scope="scope">
           {{scope.row.vstatus==1 ? '已启用' : scope.row.vstatus==2 ? '已停用': scope.row.vstatus==3 ? '已领完' : '已完结'}}
         </template>
       </el-table-column>
       <el-table-column label="操作" width="210" align="center">
         <template scope="scope">
-          <el-tooltip content="停用" placement="top" v-if="scope.row.vstatus==1" >
-            <el-button class="fa fa-stop-circle-o " aria-hidden="true" type="primary" size="mini"    @click="stopVstatus(scope.row.id,scope.$index)" :disabled="couponstop ? false:true" ></el-button>
+          <el-tooltip content="停用" placement="top" v-if="scope.row.vstatus==1">
+            <el-button class="fa fa-stop-circle-o " aria-hidden="true" type="primary" size="mini"   @click="stopVstatus(scope.row.id,scope.$index)" :disabled="packagestop ? false:true" ></el-button>
           </el-tooltip>
-          <el-tooltip content="开启" placement="top" v-else >
-            <el-button class="fa fa-play-circle-o" type="primary" size="mini"   @click="startVstatus(scope.row.id,scope.$index)" :disabled="couponstart&&scope.row.vstatus==2 ? false:true" ></el-button>
+          <el-tooltip content="开启" placement="top" v-else>
+            <el-button class="fa fa-play-circle-o" type="primary" size="mini"  @click="startVstatus(scope.row.id,scope.$index)" :disabled="packagestart&&scope.row.vstatus==2 ? false:true" ></el-button>
           </el-tooltip>
           
-          <el-tooltip :content="scope.row.vstatus==2?'编辑':'查看'" placement="top" >
-            <el-button :class="scope.row.vstatus==2?'el-icon-edit':'el-icon-view'" type="primary" size="mini"   @click="modifyItem(scope.row.id,scope.row.vstatus)" :disabled="couponupdate ? false:true"></el-button>
+          <el-tooltip :content="scope.row.vstatus==2?'编辑':'查看'" placement="top">
+            <el-button :class="scope.row.vstatus==2?'el-icon-edit':'el-icon-view'" type="primary"  size="mini" @click="modifyItem(scope.row.id,scope.row.vstatus)" :disabled="packageupdate ? false:true"></el-button>
           </el-tooltip>
-          <el-tooltip content="删除" placement="top" >
-            <el-button class="el-icon-delete" type="primary" size="mini"  @click="removeItem(scope.row.id)" :disabled="coupondelete&&scope.row.vstatus==2 ? false:true"></el-button>
+          <el-tooltip content="删除" placement="top">
+            <el-button class="el-icon-delete" type="primary" size="mini" @click="removeItem(scope.row.id)" :disabled="packagedelete&&scope.row.vstatus==2 ? false:true"></el-button>
           </el-tooltip>
           <el-tooltip content="复制链接" placement="top">
-            
-            <el-button class="el-icon-share" type="primary" size="mini"  :disabled="couponcopy ? false:true" @click="showUrl(scope.row.id,scope.row.isShared)"></el-button>
+            <el-button class="el-icon-share" type="primary" size="mini" :disabled="packagecopy ? false:true" @click="showUrl(scope.row.id,scope.row.isShared)"></el-button>
           </el-tooltip>
-          
         </template>
       </el-table-column>
     </el-table>
@@ -124,16 +106,17 @@
         style="float:right;">
       </el-pagination>
     </el-col>
-    <input type="text" id="copy-coupon"  class="copy-input" v-model="copyvalue" ref="copy">
+    <input type="text" id="copy-package"  class="copy-input" v-model="copyvalue" ref="copy">
   </section>
 </template>
 <script>
 
   export default {
-    name:'in-couponlist',
-    props:['couponadd','couponstart','couponstop','couponupdate','coupondelete','couponcopy'],
+    name:'in-packagelist',
+    props:['packageadd','packagestart','packagestop','packageupdate','packagedelete','packagecopy'],
     data(){
       return{
+        showAdd:false,
         pageNo:1,
         totalNum:0,
         pageSize:20,
@@ -141,8 +124,8 @@
         search:{
           code:'',
           name:'',
-          time:[],
           vstatus:'',
+          time:[],
         },
         listLoading: false,
         copyvalue:''
@@ -154,8 +137,9 @@
     mounted(){
       
       this.getData()
-      // eventBus.$on('resetCouponlist',(msg)=> {
+      // eventBus.$on('resetPlatformlist',(msg)=> {
       //     this.getData();
+          
       // })
     },
     activated(){
@@ -163,33 +147,23 @@
       this.getData()
     },
     methods:{
-      async download(){
-        let d={
-          id:''
-        };
-        let res = await this.$get('/couponSys/fileUtil/downloadExcelFile.json',d);
-        
-      },
       async getData(){
         this.listLoading=true
-        
         let d={
-          search_EQ_type:1,
-          page:this.pageNo,
-          pageSize:this.pageSize,
-          search_LIKE_name: this.search.name,
-          search_LIKE_code:this.search.code,
-          search_EQ_vstatus:this.search.vstatus,
-          search_GTE_createTime:this.search.time?this.$format(this.search.time[0]):'',
-          search_LTE_createTime:this.search.time?this.$format(this.search.time[1]):'',
+
+            page:this.pageNo,
+            pageSize:this.pageSize,
+            search_LIKE_name: this.search.name,
+            search_LIKE_code:this.search.code,
+            search_EQ_vstatus:this.search.vstatus,
+            search_GTE_createTime:this.search.time?this.$format(this.search.time[0]):'',
+            search_LTE_createTime:this.search.time?this.$format(this.search.time[1]):'',
         };
-       
-        let res = await this.$get('/couponSys/couponSchemeOnline/page.json',d);
+        let res = await this.$get('/couponSys/couponPackage/page.json',d);
         this.listLoading=false
         this.listItems=res.page.content;
         this.totalNum=res.page.totalNum;
-              
-              
+
       },
       //点击搜索
       async searchItem(){
@@ -198,14 +172,14 @@
       },
       //点击编辑操作
       modifyItem(id,status){ 
-        this.$router.push({path:'/home/coupon/addcoupon',query:{id:id,status:status}})
+        this.$router.push({path:'/home/coupon/addpackage',query:{id:id,status:status}})
       },
       //点击停用
       async stopVstatus(id,index){
         let d={
             id:id
         };
-        let res = await this.$get('/couponSys/couponSchemeOnline/stop.json',d);
+        let res = await this.$get('/couponSys/couponPackage/stop.json',d);
         if(res.errcode==0){
           this.listItems[index].vstatus=2
         }else{
@@ -217,7 +191,7 @@
         let d={
             id:id
         };
-        let res = await this.$get('/couponSys/couponSchemeOnline/start.json',d);
+        let res = await this.$get('/couponSys/couponPackage/start.json',d);
         if(res.errcode==0){
           this.listItems[index].vstatus=1
         }else{
@@ -232,7 +206,7 @@
             let d={
                 id:id
             };
-            let res = await this.$get('/couponSys/couponSchemeOnline/delete.json',d);
+            let res = await this.$get('/couponSys/couponPackage/delete.json',d);
             if(res.errcode==0){
               this.getData();
               this.$message.success('删除成功');
@@ -256,7 +230,7 @@
       
       //点击新增
       handleAdd(){ 
-        this.$router.push('/home/coupon/addcoupon')
+        this.$router.push('/home/coupon/addpackage')
         
       },
       //点击复制链接弹窗显示地址
@@ -265,21 +239,21 @@
         if(process.env.NODE_ENV==='development'){
           origin='http://localhost:8080/'
         }else{
-          if(location.host.includes('ceshi.lechengclub.com')||location.host.includes('192.168.11.81')){
+           if(location.host.includes('ceshi.lechengclub.com')||location.host.includes('192.168.11.81')){
             origin='https://ceshi.lechengclub.com/'
           }else{
             origin='https://www.lechengclub.com/'
           }
         }
         
-        let myurl=origin+'wxwap?#/coupon/welfare/'+id+'?type=1&isShared='+share
+        let myurl=origin+'wxwap?#/coupon/welfare/'+id+'?type=3&isShared='+share
         this.copyvalue=myurl
         this.$confirm(myurl, '链接地址', {
           confirmButtonText: '复制',
           cancelButtonText: '取消',
           
         }).then(() => {
-            var Url=document.getElementById('copy-coupon')
+            var Url=document.getElementById('copy-package')
             Url.select();
             document.execCommand("Copy");
             this.$message.success('复制成功');
@@ -287,6 +261,7 @@
                    
         });
       },
+
     }
 
   }

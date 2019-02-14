@@ -45,7 +45,7 @@
       
     </el-col>
       <!--列表-->
-    <el-table :data="listItems" stripe   highlight-current-row v-loading="listLoading"  style="width: 100%">
+    <el-table :data="listItems" stripe   highlight-current-row v-loading="listLoading"  ref="table">
       <!-- <el-table-column type="selection" ></el-table-column> -->
       <el-table-column  label="券方案编码"  >
         <template scope="scope">
@@ -118,7 +118,7 @@
         @current-change="handleCurrentChange"
         :page-sizes="[10, 20, 30, 40,50]"
         :page-size="pageSize"
-        layout="sizes, prev, pager, next"
+        layout="total,sizes, prev, pager, next"
         :total="totalNum"
         style="float:right;">
       </el-pagination>
@@ -152,6 +152,7 @@
       
     },
     mounted(){
+      
       this.getData()
       // eventBus.$on('resetPlatformlist',(msg)=> {
       //     this.getData();
@@ -159,6 +160,7 @@
       // })
     },
     activated(){
+
       this.getData()
     },
     methods:{

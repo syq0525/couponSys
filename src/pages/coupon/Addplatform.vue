@@ -38,6 +38,7 @@
                         drag
                         :on-success="handleAvatarSuccess"
                         :on-progress="handleProgress"
+                        :on-remove="handleRemove"
                         :file-list="fileList"
                         >
                         <i class="el-icon-upload"></i>
@@ -180,7 +181,7 @@
         name:'addplatform',
         data(){
             return{
-                postUrl:host+"/couponSys/fileUtil/uploadCodeFile.json?fileName=''",
+                postUrl:"/couponSys/fileUtil/uploadCodeFile.json?fileName=''",
                 queryStatus:this.$route.query.status||null,
                 id:this.$route.query.id||null,
                 code:'',  //劵方案编码
@@ -287,7 +288,7 @@
                 this.codeFile=res.entity.codeFile
                 this.platformlist=res.list;
                 this.platformCode=res.entity.platformCode
-                this.postUrl=host+'/couponSys/fileUtil/uploadCodeFile.json?fileName='+res.entity.codeFile
+                this.postUrl='/couponSys/fileUtil/uploadCodeFile.json?fileName='+res.entity.codeFile
                 let file={
                     name:res.entity.codeFileOriginal
                 }
@@ -408,12 +409,17 @@
                     this.codeFile=res.codeFile
                     this.codeFileOriginal=res.codeFileOriginal
                     this.issuanceQty=res.codeNumber
-                    this.postUrl=host+'/couponSys/fileUtil/uploadCodeFile.json?fileName='+this.codeFile
+                    this.postUrl='/couponSys/fileUtil/uploadCodeFile.json?fileName='+this.codeFile
                 }else{
                     this.fileList.pop()
                     this.$message.error(res.msg);
                 }
             },
+            handleRemove(file, fileList){
+                this.codeFile=''
+                this.codeFileOriginal=''
+                this.issuanceQty=0
+            }
         }
     }
 </script>

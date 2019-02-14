@@ -220,6 +220,7 @@
                     label: 'name'
                 },
                 category: [],  //初始化商城
+                initTreeArr:[],
                 loading:false,
                 pickerBeginDateBefore:{
                     disabledDate(time) {
@@ -311,6 +312,25 @@
                     })     
                 }
             },
+            initTree(list){
+                let arr=[];
+                list.map((item)=>{
+                    if(item.children){
+                        if(item.select==true&&item.children.length==0){
+                            this.initTreeArr.push(item.id)
+                        }
+                        this.initTree(item.children)
+                    }else{
+                        if(item.select==true){
+                            this.initTreeArr.push(item.id)
+                        }
+                    }
+                })
+                this.$nextTick(()=>{
+                    this.$refs.tree.setCheckedKeys(this.initTreeArr);
+
+                })
+            },
             async initInfo(){
                 let d={
                     id:this.id
@@ -364,46 +384,47 @@
 
                 }
                 let list=res.detailTree
-                let arr=[];
-                for(let i=0;i<list.length;i++){
-                    if(list[i].select==1){
-                        arr.push(list[i])
+                this.initTree(list)
+                // let arr=[];
+                // for(let i=0;i<list.length;i++){
+                //     if(list[i].select==1){
+                //         arr.push(list[i])
 
-                    }else if(list[i].children){
+                //     }else if(list[i].children){
 
-                        for(let j=0;j<list[i].children.length;j++){
+                //         for(let j=0;j<list[i].children.length;j++){
 
-                            if(list[i].children[j].select==1){ 
-                                arr.push(list[i].children[j])
+                //             if(list[i].children[j].select==1){ 
+                //                 arr.push(list[i].children[j])
 
-                            }else if(list[i].children[j].children){
+                //             }else if(list[i].children[j].children){
 
-                                for(let m=0;m<list[i].children[j].children.length;m++){
+                //                 for(let m=0;m<list[i].children[j].children.length;m++){
 
-                                    if(list[i].children[j].children[m].select==1){
-                                         arr.push(list[i].children[j].children[m])
+                //                     if(list[i].children[j].children[m].select==1){
+                //                          arr.push(list[i].children[j].children[m])
 
-                                    }else if(list[i].children[j].children[m].children){
+                //                     }else if(list[i].children[j].children[m].children){
 
-                                        for(let n=0;n<list[i].children[j].children[m].children.length;n++){
+                //                         for(let n=0;n<list[i].children[j].children[m].children.length;n++){
 
-                                            if(list[i].children[j].children[m].children[n].select==1){
-                                                arr.push(list[i].children[j].children[m].children[n])
-                                            }
+                //                             if(list[i].children[j].children[m].children[n].select==1){
+                //                                 arr.push(list[i].children[j].children[m].children[n])
+                //                             }
 
-                                        }
+                //                         }
 
-                                    }
+                //                     }
 
-                                }
-                            }
-                        }
-                    }
+                //                 }
+                //             }
+                //         }
+                //     }
 
-                }
-                this.$nextTick(()=>{
-                    this.$refs.tree.setCheckedNodes(arr);
-                })
+                // }
+                // this.$nextTick(()=>{
+                //     this.$refs.tree.setCheckedNodes(arr);
+                // })
 
             },
             async getCode(){

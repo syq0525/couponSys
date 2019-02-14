@@ -77,7 +77,7 @@
     <el-col :span="24" class="toolbar">
       <!-- <el-button type="danger" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button> -->
       <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-sizes="[10, 20, 30, 40,50]" :page-size="pageSize"
-        layout="sizes, prev, pager, next" :total="totalNum" style="float:right;">
+        layout="total,sizes, prev, pager, next" :total="totalNum" style="float:right;">
       </el-pagination>
     </el-col>
 

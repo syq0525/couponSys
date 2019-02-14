@@ -72,7 +72,7 @@
 </template>
 <script>
   export default {
-    props:['showType','showUpdate','childValue'],
+    props:['showType','showUpdate','childValue','fourshops'],
     data() {
       return {
         addFormVisible: false,
@@ -97,9 +97,9 @@
           mobilePhone: [
             {required: true,message: '请输入电话',trigger: 'blur'},
           ],
-          // fourvalue: [
-          //   {required: true,message: '请选择4s店',trigger: 'change'},
-          // ],
+          fourvalue: [
+            {required: true,message: '请选择4s店',trigger: 'change'},
+          ],
         },
         limit: [{
           id: 1,
@@ -114,21 +114,22 @@
         }],
         roleList:[], //角色列表
         
-        fourshops:[]
+        // fourshops:[]
       }
 
     },
     activated(){
       this.getroleList()
-      this.getFours()
+      // this.getFours()
+      
     },
     methods: {
-      async getFours() {
-        let res = await this.$get('/couponSys/common/fourshopsList.json');
-        if (res.errcode == 0) {
-          this.fourshops = res.fourshops
-        }
-      },
+      // async getFours() {
+      //   let res = await this.$get('/couponSys/common/fourshopsList.json');
+      //   if (res.errcode == 0) {
+      //     this.fourshops = res.fourshops
+      //   }
+      // },
       async getroleList(){
         let res = await this.$get('/couponSys/mgrRole/roleList.json');
         this.roleList=res;

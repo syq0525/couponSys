@@ -1,7 +1,7 @@
 <template>
-  <section>
+  <section >
     <!--工具条-->
-    <el-col :span="24" class="toolbar">
+    <el-col :span="24" class="toolbar" >
       <el-row >
         <el-col class="search-box" v-if="lechengadd">
           <el-button class="el-icon-plus button-primary-hover" @click="handleAdd"  > 新增乐橙券方案</el-button>
@@ -45,7 +45,7 @@
       
     </el-col>
       <!--列表-->
-    <el-table :data="listItems" stripe   highlight-current-row v-loading="listLoading"  style="width: 100%">
+    <el-table :data="listItems" stripe   highlight-current-row v-loading="listLoading" ref="table"  >
       <!-- <el-table-column type="selection" ></el-table-column> -->
       <el-table-column label="券方案编码"  >
         <template scope="scope">
@@ -119,7 +119,7 @@
         @current-change="handleCurrentChange"
         :page-sizes="[10, 20, 30, 40,50]"
         :page-size="pageSize"
-        layout="sizes, prev, pager, next"
+        layout="total,sizes, prev, pager, next"
         :total="totalNum"
         style="float:right;">
       </el-pagination>
@@ -158,7 +158,7 @@
       // })
     },
     activated(){
-
+      
       this.getData()
 
     },
@@ -179,6 +179,7 @@
         this.listLoading=false
         this.listItems=res.page.content;
         this.totalNum=res.page.totalNum;
+        
       },
       //点击搜索
       async searchItem(){
@@ -283,5 +284,5 @@
   }
 </script>
 <style lang="scss">
-
+  
 </style>

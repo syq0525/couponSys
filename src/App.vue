@@ -3,6 +3,7 @@
     <transition name="fade" mode="out-in">
 			  <router-view></router-view>
 		</transition>
+    
   </div>
 </template>
 
@@ -15,6 +16,7 @@ export default {
 <style lang="scss">
   @import './assets/css/base.scss';
   #app {
+    
     .fade-enter-active,
     .fade-leave-active {
       transition: all .2s ease;

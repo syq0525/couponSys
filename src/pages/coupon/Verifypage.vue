@@ -1,10 +1,19 @@
 <template>
   <el-card class="box-card">
     <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+      
+      <el-form-item class="item-two">
+        <el-col >
+          <el-form-item label="劵码" prop="code">
+            <el-input v-model="ruleForm.code" placeholder="请输入劵码,多个券码核销时，可用“,”进行分隔" style="width:50%"></el-input>
+            <el-button type="primary" size="large" @click="checkFour" style="margin-left:10px">查询核销部门</el-button>
+          </el-form-item>
+        </el-col>
+      </el-form-item>
       <el-form-item class="item-two">
 
         <el-col>
-          <el-form-item label="核销门店" prop="store">
+          <el-form-item label="核销部门" prop="store" v-show="showTrue">
             <el-cascader
                 :options="fourshops"
                 @active-item-change="getSection"
@@ -14,24 +23,9 @@
           </el-form-item>
         </el-col>
       </el-form-item>
-      <el-form-item class="item-two">
-
-        <!-- <el-col :span="8">
-          <el-form-item label="券类型" prop="type">
-            <el-select v-model="ruleForm.type" placeholder="请选择">
-              <el-option label="乐橙券" value="2"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col> -->
-        <el-col >
-          <el-form-item label="劵码" prop="code">
-            <el-input v-model="ruleForm.code" placeholder="请输入劵码,多个券码核销时，可用“,”进行分隔" style="width:50%"></el-input>
-          </el-form-item>
-        </el-col>
-      </el-form-item>
     </el-form>
     <el-row class="btn-group">
-      <el-button type="primary" size="large" @click="handleCheck">确定</el-button>
+      <el-button type="primary" size="large" @click="handleCheck" :disabled="!showTrue">确定</el-button>
     </el-row>
     <el-dialog title="确定核销信息" :visible.sync="addFormVisible" :close-on-click-modal="false" width="500px">
       <el-card v-for="(item,index) in checkEntity" style="margin-bottom:10px">
@@ -49,8 +43,8 @@
           <span>{{item.verificationCode}}</span>
         </div>
         <div class="card-box">
-          <span class="search-span">使用门店：</span>
-          <span>{{fourshopsName}}</span>
+          <span class="search-span">使用部门：</span>
+          <span>{{fourshopsName+'/'+deptsName}}</span>
         </div>
 
       </el-card>
@@ -69,6 +63,7 @@
     // props:['activeName'],
     data() {
       return {
+        showTrue:false,
         fourshops: [], //4s店
         props:{
             label:'name',
@@ -103,7 +98,8 @@
         id: '',
         checkEntity: [],
         list:[],
-        fourshopsName: ''
+        fourshopsName: '',
+        deptsName:''
       }
     },
     mounted() {
@@ -126,11 +122,13 @@
               }
               
           }
+
           if(this.fourshops[index].children==0){
               let d={
-                  fourshop:val[0]
+                  fourshop:val[0],
+                  depts:this.fourshops[index].depts
               }
-              let res = await this.$get('/couponSys/common/getDeptByFourshop.json',d);
+              let res = await this.$get('/couponSys/couponVerification/getDeptByVCFourshop.json',d);
               if(Object.keys(res).length!=0){
                   this.fourshops[index].children = res
               }
@@ -140,14 +138,31 @@
       async getData() {
         let res = await this.$get('/couponSys/couponVerification/create.json');
         if (res.errcode == 0) {
-          this.fourshops = res.fourslist
-          for(var i in this.fourshops){
-              this.$set(this.fourshops[i],'children',[])
-          }
+          
           this.ruleForm.time = this.$format(res.verificationEntity.operateTime)
         }
       },
+      async checkFour(){
+        let d={
+            code: this.ruleForm.code
+        }
+        let res = await this.$get('/couponSys/couponVerification/getFourshopByVCode.json',d);
+        if (res.errcode == 0) {
+          this.fourshops = res.fourslist
+          
+          for(var i in this.fourshops){
+              this.$set(this.fourshops[i],'children',[])
+          }
+          this.ruleForm.store=[]
+          this.showTrue=true
+        }else{
+          this.$message.error(res.msg);
+          this.showTrue=false
+        }
+          
+      },
       async handleCheck() {
+
         this.$refs.ruleForm.validate(async(valid) => {
           if (valid) {
             let d = {
@@ -164,7 +179,8 @@
               let darr=farr[0].children.filter((item)=>{
                   return this.ruleForm.store[1]==item.id;
               })
-              this.fourshopsName=farr[0].name+darr[0].name
+              this.fourshopsName=farr[0].name
+              this.deptsName=darr[0].name
               this.checkEntity = res.checkEntity
               this.addFormVisible = true;
 
@@ -189,7 +205,8 @@
             operater: this.ruleForm.name,
             operateTime: this.ruleForm.time,
             fkFourshopId:this.ruleForm.store[0],
-            fkDeptId:this.ruleForm.store[1]
+            fkDeptId:this.ruleForm.store[1],
+            fkDeptName:this.deptsName
           }
           this.list.push(item)
         }

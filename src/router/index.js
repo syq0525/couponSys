@@ -1,4 +1,4 @@
-import Vue from 'vue'
+
 const login = resolve => require(['../pages/Login.vue'], resolve)
 const home = resolve => require(['../pages/Home.vue'], resolve)
 const modifypassword = resolve => require(['../pages/Modifypassword.vue'], resolve)
@@ -21,7 +21,7 @@ const coupon_grantbox = resolve => require(['../pages/coupon/Grantbox.vue'], res
 const coupon_addmarketing = resolve => require(['../pages/coupon/Addmarketing.vue'], resolve)
 const coupon_addunderline = resolve => require(['../pages/coupon/Addunderline.vue'], resolve)
 const coupon_verifybox = resolve => require(['../pages/coupon/Verifybox.vue'], resolve)
-
+const coupon_addpackage = resolve => require(['../pages/coupon/Addpackage.vue'], resolve)
 
 
 export default [
@@ -119,7 +119,13 @@ export default [
         path: 'coupon/addplatform', 
         component: coupon_addplatform, 
         meta:{
-          name: '新增乐橙券方案',
+          name: '新增外平台券方案',
+        }  
+      },{ 
+        path: 'coupon/addpackage', 
+        component: coupon_addpackage, 
+        meta:{
+          name: '新增券包方案',
         }  
       },{ 
         path: 'coupon/grantbox', 

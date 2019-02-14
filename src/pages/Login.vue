@@ -16,10 +16,12 @@
                     <el-input type="password" v-model="loginForm.password" auto-complete="off" placeholder="密码" prefix-icon="  "  @keyup.enter.native="loginSubmit"></el-input>
                     <img src="../assets/img/icon_weblogin_password.png" class="login-icon">
                 </el-form-item>
-                <el-checkbox fill="#FB841C"  v-model="checked" checked class="remember">记住密码</el-checkbox>      
+                <el-checkbox fill="#FB841C"  v-model="checked" checked class="remember">记住密码</el-checkbox>  
+  
                 <el-form-item style="width:100%;">
                     <el-button type="primary" class="login-btn"  style="width:100%;" @click="loginSubmit" :loading="logining">登 录</el-button>
                 </el-form-item>
+                
             </el-form>
 
             <el-form :model="modifyForm" :rules="modifyRules" ref="modifyForm" label-position="left" label-width="0px" class="login-container" v-else>
@@ -39,6 +41,10 @@
                     <el-button  type="warning" plain style="width:100%;" @click="showmodify=false">取 消</el-button>
                 </el-form-item>
             </el-form>
+        </div>
+        <div class="round">
+            <div>1111</div>
+            <div>2222</div>
         </div>
     </div>
 </template>
@@ -171,6 +177,17 @@
 </script>
 
 <style lang="scss" scoped>
+    .round{
+        width:300px;
+        height: 50px;
+        display: flex;
+        background: red;
+        transform: rotate(40deg);
+        justify-content: space-between;
+        div{
+            flex:1
+        }
+    }
     .login-container {
         border-radius: 20px;
         background-clip: padding-box;

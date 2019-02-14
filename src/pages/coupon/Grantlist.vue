@@ -13,8 +13,8 @@
             </el-select>
           </div>
           <div class="search-box">
-            <span class="search-title">优惠券编码</span>
-            <el-input v-model="search.code" placeholder="请输入优惠券编码" style="width:200px" :clearable="true"></el-input>
+            <span class="search-title">发放记录编码</span>
+            <el-input v-model="search.code" placeholder="请输入发放记录编码" style="width:200px" :clearable="true"></el-input>
           </div>
           <div class="search-box">
             <span class="search-title">优惠券名称</span>
@@ -74,7 +74,7 @@
     <el-table :data="listItems" stripe   highlight-current-row v-loading="listLoading"  style="width: 100%">
       <!-- <el-table-column type="selection" ></el-table-column> -->
 
-      <el-table-column prop="couponSchemecode" label="优惠券编码"  ></el-table-column>
+      <el-table-column prop="code" label="发放记录编码"  ></el-table-column>
       <el-table-column prop="couponSchemeName" label="优惠券名称"  ></el-table-column>
       <el-table-column prop="verificationCode" label="优惠券劵码" v-if="selType!=1"></el-table-column>
       <el-table-column  label="券类型" >
@@ -116,7 +116,7 @@
         @current-change="handleCurrentChange"
         :page-sizes="[10, 20, 30, 40,50]"
         :page-size="pageSize"
-        layout="sizes, prev, pager, next"
+        layout="total,sizes, prev, pager, next"
         :total="totalNum"
         style="float:right;">
       </el-pagination>
@@ -169,7 +169,7 @@
             pageSize:this.pageSize,
             sortType:'receiveTime',
             search_LIKE_couponSchemeName: this.search.name,
-            search_LIKE_couponSchemecode: this.search.code,
+            search_LIKE_code: this.search.code,
             search_EQ_vstatus:this.selType==3?this.search.vstatus1:this.search.vstatus,
             search_EQ_memberName:this.search.memberName,
             search_EQ_memberCode:this.search.memberCode,

@@ -94,7 +94,11 @@
             {{$format(scope.row.verificationTime)}}
         </template>
       </el-table-column>
-      <el-table-column prop="fkFourshopName" label="核销门店" ></el-table-column>
+      <el-table-column  label="核销部门" >
+        <template scope="scope">
+            {{scope.row.fkFourshopName+'/'+scope.row.fkDeptName}}
+        </template>
+      </el-table-column>
       <el-table-column prop="operater" label="核销人" ></el-table-column>
     </el-table>
     <!--工具条-->
@@ -105,7 +109,7 @@
         @current-change="handleCurrentChange"
         :page-sizes="[10, 20, 30, 40,50]"
         :page-size="pageSize"
-        layout="sizes, prev, pager, next"
+        layout="total,sizes, prev, pager, next"
         :total="totalNum"
         style="float:right;">
       </el-pagination>

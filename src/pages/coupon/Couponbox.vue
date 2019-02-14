@@ -10,6 +10,9 @@
       <el-tab-pane label="外平台券" name="third" v-if="platformread">
         <platformlist :platformadd="platformadd" :platformstart="platformstart" :platformstop="platformstop" :platformupdate="platformupdate" :platformdelete="platformdelete" :platformcopy="platformcopy"></platformlist>
       </el-tab-pane>
+      <el-tab-pane label="券包" name="four" v-if="packageread">
+        <packagelist :packageadd="packageadd" :packagestart="packagestart" :packagestop="packagestop" :packageupdate="packageupdate" :packagedelete="packagedelete" :packagecopy="packagecopy"></packagelist>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -17,6 +20,7 @@
   import couponlist from './Couponlist.vue'
   import lechenglist from './Lechenglist.vue'
   import platformlist from './Platformlist.vue'
+  import packagelist from './Packagelist.vue'
   export default {
     name:'in-couponbox',
     data(){
@@ -43,17 +47,49 @@
         couponcopy:false,
         lechengcopy:false,
         platformcopy:false,
+        packageread:false,
+        packageadd:false,
+        packagestart:false,
+        packagestop:false,
+        packageupdate:false,
+        packagedelete:false,
+        packagecopy:false,
       }
     },
     components:{
       couponlist,
       lechenglist,
-      platformlist
+      platformlist,
+      packagelist
     },
     activated(){
       this.getData()
     },
+    watch:{
+      activeName(val){
+        var index=0;
+        switch(val){
+          case 'first':
+            index=0;
+            break;
+          case 'second':
+            index=1;
+            break;
+          case 'third':
+            index=2;
+            break;
+          case 'four':
+            index=3;
+            break;
+        }
 
+        document.querySelectorAll('.el-table')[index].style.width = "99.9%";
+        setTimeout(()=>{
+          document.querySelectorAll('.el-table')[index].style.width = "100%";
+        },100)
+      }
+      
+    },
     methods: { 
       async getData(){
         this.listLoading=true
@@ -126,6 +162,29 @@
         if(res.platformcopy){
           this.platformcopy=true
         }
+
+        if(res.packageadd){
+          this.packageadd=true
+        }
+        if(res.packageread){
+          this.packageread=true
+        }
+        if(res.packagestart){
+          this.packagestart=true
+        }
+        if(res.packagestop){
+          this.packagestop=true
+        }
+        if(res.packageupdate){
+          this.packageupdate=true
+        }
+        if(res.packagedelete){
+          this.packagedelete=true
+        }
+        if(res.packagecopy){
+          this.packagecopy=true
+        }
+
         if(!res.couponread){
           this.activeName='second'
         }else if(!res.couponread&&!res.lechengread){

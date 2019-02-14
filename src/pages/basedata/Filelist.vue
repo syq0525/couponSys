@@ -43,7 +43,7 @@
         @current-change="handleCurrentChange"
         :page-sizes="[10, 20, 30, 40,50]"
         :page-size="pageSize"
-        layout="sizes, prev, pager, next"
+        layout="total,sizes, prev, pager, next"
         :total="totalNum"
         style="float:right;"> 
       </el-pagination>

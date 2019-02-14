@@ -138,10 +138,12 @@
                         show-checkbox 
                         node-key="id" 
                         :accordion="true" 
+                        @check="selGoods"
                         style="margin-left:145px">
                     </el-tree>
                 </el-col>
             </el-row>
+            
             <el-row >
                 <el-col >
                     <span class="search-span" ></span>
@@ -194,28 +196,69 @@
                 defaultProps:{
                     children: 'children',  
                     label: 'name',
+                    disabled:'select'
                 },
                 category: [],  //初始化商城
+                parentId:'',
+                prevArr:[],
+                initTreeArr:[],
                 loading:false,
                 pickerBeginDateBefore:{
                     disabledDate(time) {
                         return time.getTime() < Date.now() - 8.64e7;
                     }
                 
-                }
+                },
+                
             }
             
         },
 
         mounted(){
-            
+
             if(this.id==null){
                 this.getCode()
             }else{
                 this.initInfo()
             }
+
         },
         methods:{
+            selGoods(data,node){
+                if(this.prevArr.length==0){
+                    this.prevArr=node.checkedKeys;
+                    this.parentId=data.parentId||data.id;
+                }else{
+                    var parentId;
+                    if(!data.parentId){
+                        parentId=data.id
+                    }else{
+                        parentId=data.parentId
+                    }
+                    if(parentId!=this.parentId){
+                        this.$refs.tree.setCheckedKeys([]);
+                        let checkarr=node.checkedKeys;
+                        let arr=[]
+                        for(var i=0; i < checkarr.length; i++){   
+                            var flag = true;   
+                            for(var j=0; j < this.prevArr.length; j++){   
+                                if(checkarr[i] == this.prevArr[j])   
+                                flag = false;   
+                            }   
+                            if(flag)   
+                            arr.push(checkarr[i]);   
+                        }  
+                        // checkarr.filter((item)=>{
+                        //     return this.prevArr.indexOf(item)<0
+                        // })
+                        this.$refs.tree.setCheckedKeys(arr);
+                        this.prevArr=arr;
+                        this.parentId=data.parentId||data.id
+                    }else{
+                        this.prevArr=node.checkedKeys;
+                    }
+                }
+            },
             initTimeArr(name,time){
                 if(!time){
                     this[name]=[]
@@ -244,7 +287,27 @@
                     })     
                 }
             },
-            //ddd
+            initTree(list){
+                let arr=[];
+                list.map((item)=>{
+                    if(item.children){
+                        if(item.disabled==true&&item.children.length==0){
+                            this.initTreeArr.push(item.id)
+                            this.parentId=item.parentId||item.id
+                        }
+                        this.initTree(item.children)
+                    }else{
+                        if(item.disabled==true&&item.shop_id){
+                            this.initTreeArr.push(item.id)
+                            this.parentId=item.parentId||item.id
+                        }
+                    }
+                })
+                this.$nextTick(()=>{
+                    this.$refs.tree.setCheckedKeys(this.initTreeArr);
+                    this.prevArr=this.$refs.tree.getCheckedKeys()
+                })
+            },
             async initInfo(){
                 let d={
                     id:this.id
@@ -273,46 +336,49 @@
                 this.vstatus=res.entity.vstatus
                 this.category=res.list
                 let list=res.list
-                let arr=[];
-                for(let i=0;i<list.length;i++){
-                    if(list[i].select==1){
-                        arr.push(list[i])
+                this.initTree(list)
+                // let arr=[];
+                // for(let i=0;i<list.length;i++){
+                //     if(list[i].disabled==true){
+                //         arr.push(list[i])
+                //         this.parentId=list[i].id
+                //     }else if(list[i].children){
 
-                    }else if(list[i].children){
+                //         for(let j=0;j<list[i].children.length;j++){
 
-                        for(let j=0;j<list[i].children.length;j++){
+                //             if(list[i].children[j].disabled==true){
+                //                 arr.push(list[i].children[j])
+                //                 this.parentId=list[i].children[j].parentId
+                //             }else if(list[i].children[j].children){
 
-                            if(list[i].children[j].select==1){
-                                arr.push(list[i].children[j])
+                //                 for(let m=0;m<list[i].children[j].children.length;m++){
 
-                            }else if(list[i].children[j].children){
+                //                     if(list[i].children[j].children[m].disabled==true){
+                //                          arr.push(list[i].children[j].children[m])
+                //                         this.parentId=list[i].children[j].children[m].parentId
+                //                     }else if(list[i].children[j].children[m].children){
 
-                                for(let m=0;m<list[i].children[j].children.length;m++){
+                //                         for(let n=0;n<list[i].children[j].children[m].children.length;n++){
 
-                                    if(list[i].children[j].children[m].select==1){
-                                         arr.push(list[i].children[j].children[m])
+                //                             if(list[i].children[j].children[m].children[n].disabled==true){
+                //                                 arr.push(list[i].children[j].children[m].children[n])
+                //                                 this.parentId=list[i].children[j].children[m].children[n].parentId
+                //                             }
 
-                                    }else if(list[i].children[j].children[m].children){
+                //                         }
 
-                                        for(let n=0;n<list[i].children[j].children[m].children.length;n++){
+                //                     }
 
-                                            if(list[i].children[j].children[m].children[n].select==1){
-                                                arr.push(list[i].children[j].children[m].children[n])
-                                            }
+                //                 }
+                //             }
+                //         }
+                //     }
 
-                                        }
-
-                                    }
-
-                                }
-                            }
-                        }
-                    }
-
-                }
-                this.$nextTick(()=>{
-                    this.$refs.tree.setCheckedNodes(arr);
-                })
+                // }
+                // this.$nextTick(()=>{
+                //     this.$refs.tree.setCheckedNodes(arr);
+                //     this.prevArr=this.$refs.tree.getCheckedKeys()
+                // })
                 
 
             },
@@ -320,6 +386,10 @@
                 
                 let res = await this.$get('/couponSys/couponSchemeOnline/create.json');
                 this.category=res.list
+                // for(let i=0;i<this.category.length;i++){
+                //     this.$set(this.category[i],'disabled',true)
+                // }
+                
                 this.code=res.entity.code
                 this.createTime=res.entity.createTime
                 let userinfo = unescape(sessionStorage.getItem('userinfo'));
@@ -366,7 +436,8 @@
                         goodId:nodes[i].cat_id ? nodes[i].id:'',
                         source:1,
                         isGood:nodes[i].cat_id ? 1:0,
-                        categoryId:nodes[i].cat_id ? nodes[i].cat_id:nodes[i].id
+                        categoryId:nodes[i].cat_id ? nodes[i].cat_id:nodes[i].id,
+                        parentId:this.parentId
                     }
                     categoryList.push(item)
                 }
@@ -403,6 +474,7 @@
                             isPublic:this.isPublic?1:2,
                             isShared:this.isShared?1:2,
                             vstatus:this.vstatus,
+                            
                         },
                         bCouponSchemeCategoryList:categoryList
                     }

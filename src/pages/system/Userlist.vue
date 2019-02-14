@@ -67,7 +67,7 @@
         @current-change="handleCurrentChange"
         :page-sizes="[10, 20, 30, 40,50]"
         :page-size="pageSize"
-        layout="sizes, prev, pager, next"
+        layout="total,sizes, prev, pager, next"
         :total="totalNum"
         style="float:right;">
       </el-pagination>
@@ -75,7 +75,7 @@
     <!-- 强制修改密码页面 -->
     <resetuserpwd  ref="pwd" ></resetuserpwd>
     <!-- 新增弹窗页面 -->
-    <adduser  ref="add"  :showType="showType" :showUpdate="showUpdate" :childValue="childValue" @childMethods="childMethods"></adduser>
+    <adduser  ref="add"  :showType="showType" :fourshops="fourshops" :showUpdate="showUpdate" :childValue="childValue" @childMethods="childMethods"></adduser>
   </section>
 </template>
 <script>
@@ -102,6 +102,7 @@
         listLoading: false,
         showType:1,  //显示弹窗类型  1：添加  2：修改
         childValue:'',
+        fourshops:[]
       } 
     },
     components:{
@@ -110,8 +111,15 @@
     },
     mounted(){
       this.getData()
+      this.getFours()
     },
     methods:{
+      async getFours() {
+        let res = await this.$get('/couponSys/common/fourshopsList.json');
+        if (res.errcode == 0) {
+          this.fourshops = res.fourshops
+        }
+      },
       childMethods(msg){
         if(msg==1){
           this.search.name='',
@@ -168,12 +176,21 @@
             for(let i=0;i<res.value.roles.length;i++){
               roles.push(res.value.roles[i].id)
             }
+            let fourvalue = res.value.foursShop?res.value.foursShop.split(','):[];
+            
+            let arr=[]
+            for(var i=0;i<this.fourshops.length;i++){
+                arr.push(this.fourshops[i].PK_FOURSPOINTMG)
+                
+            }
+            let b = new Set(arr); 
+            let intersectionSet = new Set(fourvalue.filter(x => b.has(parseInt(x))))
             let item={
               name: res.value.name,
               account: res.value.account,
               mobilePhone:res.value.mobilePhone,
               station: res.value.station,
-              fourvalue: res.value.foursShop?res.value.foursShop.split(','):[],
+              fourvalue: [...intersectionSet],
               rolevalue:roles,
               showUrl:res.value.showImgUrl,
               imgUrl:res.value.imgUrl

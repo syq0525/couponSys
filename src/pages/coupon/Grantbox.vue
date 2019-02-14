@@ -45,6 +45,28 @@
     activated(){
       this.getData()
     },
+    watch:{
+      activeName(val){
+        var index=0;
+        switch(val){
+          case 'first':
+            index=0;
+            break;
+          case 'second':
+            index=1;
+            break;
+          case 'third':
+            index=2;
+            break;
+        }
+
+        document.querySelectorAll('.el-table')[index].style.width = "99.9%";
+        setTimeout(()=>{
+          document.querySelectorAll('.el-table')[index].style.width = "100%";
+        },100)
+      }
+      
+    },
     methods: { 
       async getData(){
 
